@@ -38,7 +38,9 @@ def main(argv):
     if args.playlist:
         download_full_playlist(args.playlist, args.target)
     if args.info:
-        playlist_title_url(args.info)
+        playlist_info = playlist_title_url(args.info)
+        for i in playlist_info:
+            print(i)
 
 
 if __name__ == "__main__":

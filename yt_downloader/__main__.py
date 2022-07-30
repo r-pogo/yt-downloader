@@ -10,7 +10,7 @@ def parse_args(args):
     # TODO skonczyc i sprawdzic opisy
     parser = argparse.ArgumentParser(
         description="youtube downloader")
-    # this prevent to jump to the inputs in main() if all arg are omitted
+    # if all arg are omitted displays simple usage
     if not args:
         parser.print_help()
         exit(0)

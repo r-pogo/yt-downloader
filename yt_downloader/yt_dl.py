@@ -1,46 +1,20 @@
 # Third-party imports
-from pytube import YouTube, Playlist, exceptions
+from pytube import YouTube, Playlist
 from halo import Halo
 
 
 # TODO funkcje do wyszukiwania filmikow tak jak to robie w prawidziwym YT
-# TODO funkcja do sciagania filmikow na podstawie kanalu
-# TODO funkcja do wyszukiwania filmikow w danym knalae
+# TODO funkcja do sciagania calego kanalu
 # TODO funkcja ktora bedzie tworzyc folder na podstawie nazwy kanalu i tam
 #  bedzie zapisywac filmiki
-def _try_except_youtube(url: str) -> YouTube:
-    try:
-        youtube = YouTube(url)
-    except exceptions.VideoUnavailable:
-        print(f'Video {youtube.title} is unavailable.')
-        exit(1)
 
-    return youtube
-
-
-def _try_except_playlist(url: str) -> list[YouTube]:
-    playlist_to_check = Playlist(url)
-
-    playlist_to_return = []
-    for url in playlist_to_check.video_urls:
-        try:
-            youtube = YouTube(url)
-            playlist_to_return.append(youtube)
-        except exceptions.VideoUnavailable:
-            print(f'Video {youtube.title} is unavailable, skipping.')
-            continue
-
-    return playlist_to_return
-
-
-def download_single_video(url: str, target: str) -> None:
+def download_single_video(you_tube: YouTube, target: str) -> None:
     # TODO jesli dam path w stylu windowsowskim do linuxa to taget bedzie
     #  None, zrobic cos co przetwarza target na uniwersalny
-    spinner = Halo(text=f'Downloading: {YouTube(url).title}', spinner='dots')
+    spinner = Halo(text=f'Downloading: {you_tube.title}', spinner='dots')
     spinner.start()
 
-    youtube = _try_except_youtube(url)
-    video = youtube.streams.get_highest_resolution()
+    video = you_tube.streams.get_highest_resolution()
 
     if target:
         video.download(target)
@@ -53,21 +27,19 @@ def download_single_video(url: str, target: str) -> None:
     print("Downloading finished!")
 
 
-def download_full_playlist(url: str, target: str) -> None:
+def download_full_playlist(yt_playlist: list[YouTube], target: str, url: str) -> None:
     spinner = Halo(text=f'Downloading: {Playlist(url).title}', spinner='dots')
     spinner.start()
 
-    playlist = _try_except_playlist(url)
-
-    if playlist is None:
+    if yt_playlist is None:
         print("All videos are unavailable")
-        exit(2)
+        exit(6)
     elif target:
         [video.streams.get_highest_resolution().download(target) for video in
-         playlist]
+         yt_playlist]
     else:
         [video.streams.get_highest_resolution().download() for video in
-         playlist]
+         yt_playlist]
 
     spinner.stop()
 

@@ -4,6 +4,9 @@ import sys
 # Local imports
 from yt_downloader.yt_dl import (download_single_video, download_full_playlist,
                                  playlist_title_url)
+from yt_downloader.validation import (_try_except_playlist,
+                                      _try_except_youtube,
+                                      _try_except_playlist_title_url)
 
 
 def parse_args(args):
@@ -34,11 +37,14 @@ def main(argv):
     args = parse_args(argv)
 
     if args.video:
-        download_single_video(args.video, args.target)
+        yt_video = _try_except_youtube(args.video)
+        download_single_video(yt_video, args.target)
     if args.playlist:
-        download_full_playlist(args.playlist, args.target)
+        yt_playlist = _try_except_playlist(args.playlist)
+        download_full_playlist(yt_playlist, args.target, args.playlist)
     if args.info:
-        playlist_info = playlist_title_url(args.info)
+        yt_url = _try_except_playlist_title_url(args.info)
+        playlist_info = playlist_title_url(yt_url)
         for i in playlist_info:
             print(i)
 

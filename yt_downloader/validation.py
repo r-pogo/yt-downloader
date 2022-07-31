@@ -7,8 +7,10 @@ from halo import Halo
 
 def _try_except_youtube(url: str) -> YouTube:
     url = _try_except_url(url)
+
     spinner = Halo(text='Testing...', spinner='dots')
     spinner.start()
+
     try:
         youtube = YouTube(url)
     except exceptions.VideoUnavailable:
@@ -25,10 +27,12 @@ def _try_except_youtube(url: str) -> YouTube:
 
 def _try_except_playlist(url: str) -> list[YouTube]:
     url_check = _try_except_playlist_title_url(url)
+
     spinner = Halo(text='Testing...', spinner='dots')
     spinner.start()
+
     try:
-        playlist_to_check = Playlist(url)
+        playlist_to_check = Playlist(url_check)
         playlist_to_return = []
         for url in playlist_to_check.video_urls:
             try:
@@ -48,8 +52,10 @@ def _try_except_playlist(url: str) -> list[YouTube]:
 
 def _try_except_playlist_title_url(url):
     url = _try_except_url(url)
+
     spinner = Halo(text='Testing...', spinner='dots')
     spinner.start()
+
     try:
         # sometimes if the url error is connected to the title it can result
         # in a KeyError: sidebar, here I'm checking if .title is ok
@@ -58,22 +64,28 @@ def _try_except_playlist_title_url(url):
         title_check = Playlist(url).title
     except KeyError:
         print("Are you sure the link is ok?")
-        exit(5)
+        exit(6)
 
     spinner.stop()
+
     return url
 
 
-def _try_except_url(url):
+def _try_except_url(url: str) -> str:
     spinner = Halo(text='Testing...', spinner='dots')
     spinner.start()
-    url = url
+
     try:
         response = requests.get(url)
-    except requests.exceptions.ConnectionError:
-        print("Failed to establish a connection")
+    except requests.exceptions.ConnectionError as err:
+        print(f"Failed to establish a connection: {err}")
         exit(4)
+    except requests.exceptions.InvalidURL as err:
+        print(err)
+        exit(5)
+
     spinner.stop()
+
     return url
 
 

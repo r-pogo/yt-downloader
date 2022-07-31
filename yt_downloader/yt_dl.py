@@ -1,6 +1,10 @@
 # Third-party imports
 from pytube import YouTube, Playlist
 from halo import Halo
+# Local imports
+from yt_downloader.validation import (_try_except_playlist,
+                                      _try_except_youtube,
+                                      _try_except_playlist_title_url)
 
 
 # TODO funkcje do wyszukiwania filmikow tak jak to robie w prawidziwym YT
@@ -8,14 +12,15 @@ from halo import Halo
 # TODO funkcja ktora bedzie tworzyc folder na podstawie nazwy kanalu i tam
 #  bedzie zapisywac filmiki
 
-def download_single_video(you_tube: YouTube, target: str) -> None:
+def download_single_video(url: str, target: str) -> None:
     # TODO jesli dam path w stylu windowsowskim do linuxa to taget bedzie
     #  None, zrobic cos co przetwarza target na uniwersalny
+    you_tube = _try_except_youtube(url)
+
     spinner = Halo(text=f'Downloading: {you_tube.title}', spinner='dots')
     spinner.start()
 
     video = you_tube.streams.get_highest_resolution()
-
     if target:
         video.download(target)
     else:
@@ -27,13 +32,15 @@ def download_single_video(you_tube: YouTube, target: str) -> None:
     print("Downloading finished!")
 
 
-def download_full_playlist(yt_playlist: list[YouTube], target: str, url: str) -> None:
+def download_full_playlist(url: str, target: str) -> None:
+    yt_playlist = _try_except_playlist(url)
+
     spinner = Halo(text=f'Downloading: {Playlist(url).title}', spinner='dots')
     spinner.start()
 
     if yt_playlist is None:
-        print("All videos are unavailable")
-        exit(6)
+        print("No videos were found")
+        exit(7)
     elif target:
         [video.streams.get_highest_resolution().download(target) for video in
          yt_playlist]
@@ -47,13 +54,14 @@ def download_full_playlist(yt_playlist: list[YouTube], target: str, url: str) ->
 
 
 def playlist_title_url(url: str) -> list:
+    yt_url = _try_except_playlist_title_url(url)
+
     spinner = Halo(text=f'Downloading titles and links for '
                         f'{Playlist(url).title}', spinner='dots')
     spinner.start()
 
-    video_links = Playlist(url).video_urls
-
     titles_links = []
+    video_links = Playlist(yt_url).video_urls
     for link in video_links:
         video_title = YouTube(link).title
         video_ck_aval = YouTube(link).check_availability()

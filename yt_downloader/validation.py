@@ -50,7 +50,7 @@ def _try_except_playlist(url: str) -> list[YouTube]:
     return playlist_to_return
 
 
-def _try_except_playlist_title_url(url):
+def _try_except_playlist_title_url(url: str) -> str:
     url = _try_except_url(url)
 
     spinner = Halo(text='Testing...', spinner='dots')

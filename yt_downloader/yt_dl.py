@@ -18,7 +18,7 @@ def create_folder_chl_name(name: str) -> Union[str, None]:
     try:
         p.mkdir()
         return str(p)
-    except FileExistsError as exc: #TODO tu jesli mam juz directory to i tak sciagnie plik, ale jak za trzecim razem sprobuje to wylapuje błoad
+    except FileExistsError as exc:
         print(exc)
         exit(0)
 

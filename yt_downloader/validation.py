@@ -5,8 +5,8 @@ from pytube import YouTube, Playlist, exceptions
 from halo import Halo
 
 
-def _try_except_youtube(url: str) -> YouTube:
-    url = _try_except_url(url)
+def try_except_youtube(url: str) -> YouTube:
+    url = try_except_url(url)
 
     spinner = Halo(text='Testing...', spinner='dots')
     spinner.start()
@@ -16,7 +16,10 @@ def _try_except_youtube(url: str) -> YouTube:
     except exceptions.VideoUnavailable:
         print(f'Video {youtube.title} is unavailable.')
         exit(1)
-    except exceptions.RegexMatchError:  # extra check for typos in url
+    # extra check for typos in url, I didn't meet this type of error while
+    # working with Playlist object, this is wy I didn't included this exception
+    # in other try-except functions
+    except exceptions.RegexMatchError:
         print('Are you sure the link is ok?')
         exit(2)
 
@@ -25,8 +28,8 @@ def _try_except_youtube(url: str) -> YouTube:
     return youtube
 
 
-def _try_except_playlist(url: str) -> list[YouTube]:
-    url_check = _try_except_playlist_title_url(url)
+def try_except_playlist(url: str) -> list[YouTube]:
+    url_check = try_except_playlist_title_url(url)
 
     spinner = Halo(text='Testing...', spinner='dots')
     spinner.start()
@@ -50,8 +53,8 @@ def _try_except_playlist(url: str) -> list[YouTube]:
     return playlist_to_return
 
 
-def _try_except_playlist_title_url(url: str) -> str:
-    url = _try_except_url(url)
+def try_except_playlist_title_url(url: str) -> str:
+    url = try_except_url(url)
 
     spinner = Halo(text='Testing...', spinner='dots')
     spinner.start()
@@ -71,7 +74,7 @@ def _try_except_playlist_title_url(url: str) -> str:
     return url
 
 
-def _try_except_url(url: str) -> str:
+def try_except_url(url: str) -> str:
     spinner = Halo(text='Testing...', spinner='dots')
     spinner.start()
 

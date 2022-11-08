@@ -13,13 +13,14 @@ from yt_downloader.validation import (try_except_playlist,
                                       try_except_playlist_title_url)
 
 
-def create_folder_chl_name(name: str):
+def create_folder_chl_name(name: str) -> Union[str, None]:
     p = Path(f"{Path.cwd()}/{name}")
     try:
         p.mkdir()
         return str(p)
     except FileExistsError as exc: #TODO tu jesli mam juz directory to i tak sciagnie plik, ale jak za trzecim razem sprobuje to wylapuje błoad
         print(exc)
+        exit(0)
 
 
 def extractor_of_channel_name(url: str) -> Union[str, None]:

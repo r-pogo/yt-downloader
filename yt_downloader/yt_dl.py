@@ -1,3 +1,4 @@
+"""This module contains the main logic for yt_downloader."""
 # Standard library imports
 from typing import Optional, Union
 import re
@@ -14,18 +15,19 @@ from yt_downloader.validation import (try_except_playlist,
 
 
 def create_folder_chl_name(name: str) -> Union[str, None]:
-    p = Path(f"{Path.cwd()}/{name}")
+    folder_chl_name = Path(f"{Path.cwd()}/{name}")
     try:
-        p.mkdir()
-        return str(p)
+        folder_chl_name.mkdir()
+        return str(folder_chl_name)
     except FileExistsError as exc:
         print(exc)
-        exit(0)
+        exit(8)
 
 
 def extractor_of_channel_name(url: str) -> Union[str, None]:
     """Adding this function as pytube.extract.channel_name doesn't supports
     all patterns """
+    # TODO should I use contexlib.supress?
     try:
         chl_name = pytube.extract.channel_name(url)
         return chl_name
@@ -35,10 +37,13 @@ def extractor_of_channel_name(url: str) -> Union[str, None]:
         pattern = re.compile(r'channel=.*')
         match = pattern.search(url)
         chl_name = re.sub('channel=', "", match[0])
-        return chl_name
     except TypeError:
-        print("Channel name was not found in the url! Downloading to the "
-              "current directory.")
+        print("Channel name was not found in the url!")
+
+    if chl_name is None:
+        exit(9)
+    else:
+        return chl_name
 
 
 def download_single_video(url: str, target: Optional[str],
@@ -54,41 +59,41 @@ def download_single_video(url: str, target: Optional[str],
 
     video = you_tube.streams.get_highest_resolution()
     # If the user wants to create a new folder(based on the channel name)
-    # where to save the video
+    # where the video will be saved
     if create_folder:
         if chl_name := extractor_of_channel_name(url):
             folder = create_folder_chl_name(chl_name)
             video.download(folder)
-        elif chl_name is None:
-            video.download()
     # If the user indicates where to save the video
     elif target:
         video.download(target)
     # If the user wants to save the video in the current directory
     else:
-        video.download()  # TODO kiedy cli bedzie gotowy sprawdzic gdzie to
-        #   sie zapisuje, czy w folderze cli czy aktualnym
-        #    folderze
+        video.download()
     spinner.stop()
     print("Downloading finished!")
 
 
 def download_full_playlist(url: str, target: Optional[str]) -> None:
+    """When providing url for a playlist. The playlist can be saved in the
+    current working directory or in a specified target directory"""
+    # Tests correctness of url and creates list[YouTube]
     yt_playlist = try_except_playlist(url)
 
     spinner = Halo(text=f'Downloading: {Playlist(url).title}', spinner='dots')
     spinner.start()
 
-    if yt_playlist is None:
-        print("No videos were found")
-        exit(7)
-    elif target:
+    # If the user indicates where to save the playlist
+    if target:
         [video.streams.get_highest_resolution().download(target) for video in
          yt_playlist]
+    # If the user wants to save the playlist in the current directory
     else:
-        # TODO stwórz folder na podstawie nazwy tytułu plislity + kanału channel_name
-        [video.streams.get_highest_resolution().download() for video in
-         yt_playlist]
+        # Creating folder name with the playlist name
+        folder_playlist = str(Path(f"{Path.cwd()}/{Playlist(url).title}"))
+
+        [video.streams.get_highest_resolution().download(folder_playlist) for
+         video in yt_playlist]
 
     spinner.stop()
 
@@ -96,6 +101,9 @@ def download_full_playlist(url: str, target: Optional[str]) -> None:
 
 
 def playlist_title_url(url: str) -> list:
+    """Allows to download information like title, availability of a playlist
+    videos and they respective links"""
+    # Tests correctness of url
     yt_url = try_except_playlist_title_url(url)
 
     spinner = Halo(text=f'Downloading titles and links for '
@@ -109,8 +117,8 @@ def playlist_title_url(url: str) -> list:
         video_ck_aval = YouTube(link).check_availability()
         if video_ck_aval is None:
             video_ck_aval = "ok"
-        # TODO czemu nie działa z from rich import print?
-        # hyperlink = f"[link={link}]{video_title}[/link]"
+        # TODO why this is not working with from ritch import print in
+        #  __main__.py? hyperlink = f"[link={link}]{video_title}[/link]"
         video_title_link = f"{video_title}: {link}. Availability: " \
                            f"{video_ck_aval}"
         titles_links.append(video_title_link)

@@ -9,7 +9,7 @@ from yt_downloader.yt_dl import (download_single_video, download_full_playlist,
 # TODO runt linter or something
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="youtube downloader")
+        description="youtube videos downloader")
 
     parser.add_argument("-v", "--video", type=str, help="url for the video")
 

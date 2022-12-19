@@ -12,7 +12,7 @@ optional arguments:
   -v VIDEO, --video VIDEO
                         url for the video
   -p PLAYLIST, --playlist PLAYLIST
-                        url for the playlist
+                        url for the playlist, use quotation marks 'url'
   -pi PLAYLISTINFO, --playlistInfo PLAYLISTINFO
                         This flag allows to download information like title, availability of a
                         playlist videos and they respective links
